@@ -17,16 +17,13 @@ let app = {
     },
 
     next : function() {
-        this.arrowPrev.style.display = 'block';        
-        
-        if (this.curQuote >= this.quotes) {
+        this.arrowPrev.style.display = 'block';
+        this.curQuote += 1;
+
+        if (this.curQuote > this.quotes) {
             this.curFrame += 1;
             this.renderFrame(this.getCurFrame());
-            
-            return;
         }
-
-        this.curQuote += 1;
 
         if ((this.quotes < this.curQuote + 1) && (this.frames.length - 1 < this.curFrame + 1)) {
             this.arrowNext.style.display = 'none';
@@ -41,9 +38,7 @@ let app = {
 
         if (this.curQuote < 0) {
             this.curFrame -= 1
-
             this.renderFrame(this.getCurFrame());
-
             this.curQuote = this.quotes;
         }
 
