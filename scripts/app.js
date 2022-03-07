@@ -13,7 +13,6 @@ let app = {
 
     start : function(frames) {
         this.frames = frames;
-        this.quotes = this.getFrameQuotes();
         this.renderFrame(this.getCurFrame());
     },
 
@@ -22,8 +21,6 @@ let app = {
         
         if (this.curQuote >= this.quotes) {
             this.curFrame += 1;
-            this.curQuote = 0;
-            this.quotes = this.getFrameQuotes();
             this.renderFrame(this.getCurFrame());
             
             return;
@@ -31,7 +28,7 @@ let app = {
 
         this.curQuote += 1;
 
-        if (!this.getNextQuote()) {
+        if ((this.quotes < this.curQuote + 1) && (this.frames.length - 1 < this.curFrame + 1)) {
             this.arrowNext.style.display = 'none';
         }
 
@@ -44,13 +41,17 @@ let app = {
 
         if (this.curQuote < 0) {
             this.curFrame -= 1
-            
-            this.quotes = this.getFrameQuotes();
-            this.curQuote = this.quotes;
+
             this.renderFrame(this.getCurFrame());
+
+            this.curQuote = this.quotes;
         }
 
-        this.renderPhrase(this.getNextQuote());
+        if ((this.curQuote - 1 < 0) && (this.curFrame - 1 < 0)) {
+            this.arrowPrev.style.display = 'none';
+        }
+
+        this.renderPhrase(this.getCurQuote());
     },
 
     getCurFrame : function() {
@@ -61,23 +62,10 @@ let app = {
     },
 
     getCurQuote: function() {
-        return this.getCurFrame().quotes[this.curQuote];
-    },
-
-    getNextQuote : function() {
-        console.log(this.quotes, this.curQuote + 1);
-        if (this.quotes >= this.curQuote + 1)
+        if (this.quotes >= this.curQuote)
             return this.getCurFrame().quotes[this.curQuote];
         else
             return false;
-    },
-
-    getNextFrame : function() {
-
-    },
-
-    getFrameQuotes : function() {
-        return this.getCurFrame().quotes.length - 1;
     },
 
     // Reset frames to first or last frame
@@ -91,13 +79,15 @@ let app = {
             this.curFrame = this.frames.length - 2;
             this.curQuote = this.getCurFrame().quotes[-1];
 
-            return {frame : this.getCurFrame(), quote : this.getNextQuote()};
+            return {frame : this.getCurFrame(), quote : this.getCurQuote()};
         }
 
         return false;
     },
 
     renderFrame : function(frame) {
+        this.curQuote = 0;
+        this.quotes = frame.quotes.length - 1;
         this.changeBackground(frame.background);
         this.changeChar(frame.character);
         this.renderPhrase(this.getCurQuote());
