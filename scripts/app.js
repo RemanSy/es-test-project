@@ -86,7 +86,7 @@ let app = {
         this.curQuote = 0;
         this.quotes = frame.quotes.length - 1;
 
-        if (frame.audio.volume != 0 || frame.audio.volume != 0)
+        if (frame.audio.volume != 0 || frame.audio.volume != 100)
             sleep(300);
 
         if (frame.audio && new Audio('sound/' + frame.audio).src != this.audio.src) {
@@ -103,17 +103,25 @@ let app = {
     },
 
     renderPhrase : function(phrase) {
-        console.log(phrase);
-        console.log(this.curQuote, this.quotes);
+        if (phrase == false) {
+            this.next();
+            return;
+        }
+
         if (phrase[0] == CHOICE) {
             this.choice.style.display = 'flex';
             this.dialog.style.display = 'none';
             this.chsVarnts = phrase[2];
+
             for (let key in phrase[2])
                 this.choice.querySelector('ul').append(createNode(`<li>${key}</li>`));
                 
-        } else if (phrase[0] == CONDITION) {
+        } else if (phrase[0] == CONDITION || phrase[0] == ENDCONDITION)
             this.resolveCondition(phrase);
+        else if (this.skipQuotes) {
+            this.getFrame().quotes.splice(this.curQuote, 1);
+            this.curQuote -= 1;
+            this.next();
         } else {
             this.name.innerText = phrase[0];
             this.phrase.innerText = phrase[1];
@@ -135,45 +143,81 @@ let app = {
     },
 
     resolveCondition : function(cond) {
-        switch(cond[1][1]) {
-            case '>':
-                if (this.points[cond[1][0]] > cond[1][2]) {
-                    this.frames.splice(this.curFrame + 1, 10000);
-                    this.groups[cond[2]].forEach(frame => this.frames.push(frame));
-                    this.getFrame().quotes.splice(this.curQuote, 1000);
-                    this.next();
-                } else {
-                    this.getFrame().quotes.splice(this.curQuote, 1);
-                    this.renderPhrase(this.getQuote);
-                }
-                break;
-
-            case '<':
-                if (this.points[cond[1][0]] < cond[1][2]) {
-                    this.frames.splice(this.curFrame + 1, 10000);
-                    this.groups[cond[2]].forEach(frame => this.frames.push(frame));
-                    this.getFrame().quotes.splice(this.curQuote, 1000);
-                    this.next();
-                } else {
-                    this.getFrame().quotes.splice(this.curQuote, 1);
-                    this.renderPhrase(this.getQuote());
-                }
-                
-                break;
-
-            case '=':
-                if (this.points[cond[1][0]] == cond[1][2]) {
-                    this.frames.splice(this.curFrame + 1, 10000);
-                    this.groups[cond[2]].forEach(frame => this.frames.push(frame));
-                    this.getFrame().quotes.splice(this.curQuote, 1000);
-                    this.next();
-                } else {
-                    this.getFrame().quotes.splice(this.curQuote, 1);
-                    this.renderPhrase(this.getQuote());
-                }
-
-                break;
+        if (cond[0] == ENDCONDITION) {
+            this.skipQuotes = false;
+            this.getFrame().quotes.splice(this.curQuote, 1);
+            this.curQuote -= 1;
+            this.next();
+            return;
         }
+
+        if (cond[2] != undefined) {
+            switch(cond[1][1]) {
+                case '>':
+                    if (this.points[cond[1][0]] > cond[1][2])
+                        this.condTrue(cond);
+                    else
+                        this.condFalse();
+                    break;
+    
+                case '<':
+                    if (this.points[cond[1][0]] < cond[1][2])
+                        this.condTrue(cond);
+                    else
+                        this.condFalse();
+                    
+                    break;
+    
+                case '=':
+                    if (this.points[cond[1][0]] == cond[1][2])
+                        this.condTrue(cond);
+                    else
+                        this.condFalse();
+    
+                    break;
+            }
+        } else {
+            this.getFrame().quotes.splice(this.curQuote, 1);
+            switch(cond[1][1]) {
+                case '>':
+                    if (!(this.points[cond[1][0]] > cond[1][2]))
+                        this.skipQuotes = true;
+                    
+                    this.curQuote -= 1;
+                    this.next();
+                    break;
+    
+                case '<':
+                    if (!(this.points[cond[1][0]] < cond[1][2]))
+                        this.skipQuotes = true;
+                    
+                    this.curQuote -= 1;
+                    this.next();
+                    break;
+    
+                case '=':
+                    if (!(this.points[cond[1][0]] == cond[1][2]))
+                        this.skipQuotes = true;
+                    
+                    this.curQuote -= 1;
+                    this.next();
+                    break;
+            }
+        }
+        
+    },
+
+    condTrue : function(cond) {
+        this.frames.splice(this.curFrame + 1, 10000);
+        this.groups[cond[2]].forEach(frame => this.frames.push(frame));
+        this.getFrame().quotes.splice(this.curQuote, 1000);
+        this.next();
+    },
+
+    condFalse : function() {
+        this.getFrame().quotes.splice(this.curQuote, 1);
+        this.quotes = this.getFrame().quotes.length - 1;
+        this.renderPhrase(this.getQuote()); 
     },
 
     changeBackground : function(path) {
@@ -200,6 +244,7 @@ let app = {
 
 const CHOICE = 'cniyec19n91438nc1nfc';
 const CONDITION = '0n9acponifq42nu8rsih';
+const ENDCONDITION = 'p9g7w2vpo4nir2wnipc';
 
 window.onload = () => {
     app.char.width = app.contain({width : 1920, height : 1080}, {width : window.innerWidth, height : window.innerHeight}).width;
@@ -243,7 +288,7 @@ Audio.prototype.smoothPause = async function() {
     try {
         for (let i = 0; i < 98; i++) {
             if (this.volume == 0) break
-            await sleep(21);
+            await sleep(19);
             this.volume -= 0.01;
         }
     } catch(e) {
@@ -259,10 +304,10 @@ Audio.prototype.smoothPlay = async function() {
     this.muted = false;
     this.volume = 0.01;
     this.play();
-    // await sleep(700);
+    await sleep(100);
     for (let i = 0; i < 98; i++) {
         if (this.volume == 0) break
-        await sleep(31);
+        await sleep(28);
         this.volume += 0.01;
     }
     this.volume = 1;
