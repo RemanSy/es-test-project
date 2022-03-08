@@ -7,149 +7,21 @@
     <link rel="icon" type="image/x-icon" href="ico/icon.webp">
     <title>Посмотрим, что из этого выйдет</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        * {
-            font-family : 'Segoe UI', sans-serif;
-            box-sizing : border-box;
-            margin : 0;
-            padding : 0;
-            user-select : none;
-        }
-
-        html, body {
-            margin : 0;
-            padding : 0;
-        }
-
-        img {
-            max-width : 100%;
-            max-height : 100%;
-        }
-
-        body, .app {
-            height : 100vh;
-        }
-
-        #filler {
-            position : absolute;
-            left : 0;
-            top : 0;
-            width : 100%;
-            height : 100%;
-            z-index : 1;
-            background-image : url('backgrounds/EverlastingSummer-Background (20).jpg');
-            background-size : cover;
-            filter : blur(5px);
-        }
-
-        #filler::before {
-            content : '';
-            position : absolute;
-            top : 0;
-            left : 0;
-            width : 100%;
-            height : 100%;
-            background-color : rgba(0, 0, 0, 0.6);
-            z-index : 2;
-        }
-
-        #background {
-            position : absolute;
-            object-fit : contain;
-            width : 100%;
-            height : 100%;
-            z-index : 3;
-        }
-
-        #char {
-            position : relative;
-            object-fit : contain;
-            width : 100%;
-            z-index : 4;
-        }
-
-        #dialog {
-            position : absolute;
-            color : #fff;
-            padding : 20px 30px;
-            width : 72%;
-            left : calc((100% - 72%) / 2);
-            background-color :rgba(0, 0, 0, 0.6);
-            z-index : 5;
-            height : 300px;
-            border-radius : 5px;
-            bottom : 20px;
-        }
-
-        /* Dialog window */
-        .name {
-            font-size : calc(18px + 4 * (100vw / 900));
-            color : skyblue;
-            margin-bottom : 3px;
-            font-weight : bold;
-        }
-        
-        .phrase {
-            font-size : calc(12px + 5 * (100vw / 900));
-        }
-
-        #arrowPrev {
-            display : none;
-            position : absolute;
-            bottom : 15px;
-            left : 15px;
-        }
-
-        #arrowNext {
-            position : absolute;
-            right : 15px;
-            bottom : 15px;
-            /* animation-name : arrowJump;
-            animation-duration : 2s;
-            animation-iteration-count : infinite; */
-        }
-
-        @media (max-width : 1125px) {
-            .name {
-                font-size : calc(18px + (4 + 4 * 0.7) * ((100vw - 600px) / 900));
-                margin-bottom : 0;
-            }
-
-            .phrase {
-                font-size : calc(12px + (6 + 4 * 0.7) * ((100vw - 600px) / 900));
-            }
-        }
-
-        @media (max-width : 955px) {
-            .name {
-                font-size : calc(10px + (12 + 12 * 0.5) * ((100vw - 600px) / 900));
-            }
-
-            .phrase {
-                font-size : calc(8px + (10 + 10 * 0.5) * ((100vw - 600px) / 900));
-            }
-        }
-
-        @keyframes arrowJump {
-            0% {
-                bottom : 0;
-            }
-
-            50% {
-                bottom : 5px;
-            }
-
-            100% {
-                bottom : 0;
-            }
-        }
-
-    </style>
+    <link rel="stylesheet" href="style/style.css">
 
 </head>
 <body>
-    <!-- <canvas id="canvas"></canvas> -->
     <div class="app">
+        <div class="start_screen">
+            <div class="menu_text">
+                <div class="title">Бесконечное ПТСР</div>
+                <ul>
+                    <li id="start">Начать игру</li>
+                    <li>Настройки</li>
+                    <li>Выход</li>
+                </ul>
+            </div>
+        </div>
         <div id="filler"></div>
         <img id="background" src="">
         <img id="char" src="">
@@ -161,7 +33,7 @@
         </div>
     </div>
 </body>
-<script src="scripts/app.js"></script>
-<script src="scripts/frame.js"></script>
-<script src="scripts/main.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/frame.js"></script>
+    <script src="scripts/main.js"></script>
 </html>

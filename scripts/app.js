@@ -7,13 +7,17 @@ let app = {
     phrase : document.querySelector('.phrase'),
     arrowPrev : document.querySelector('#arrowPrev'),
     arrowNext : document.querySelector('#arrowNext'),
+    audio : new Audio(''),
     curFrame : 0,
     curQuote : 0,
     quotes : 0,
 
     start : function(frames) {
-        this.frames = frames;
         this.renderFrame(this.getCurFrame());
+    },
+
+    loadFrames : function(frames) {
+        this.frames = frames;
     },
 
     next : function() {
@@ -63,26 +67,18 @@ let app = {
             return false;
     },
 
-    // Reset frames to first or last frame
-    resetFrames : function(dir = 'min') {
-        if (dir == 'min') {
-            this.curFrame = 0;
-            this.curQuote = 0;
-
-            return {frame : 0, quote : 0};
-        } else if (dir == 'max') {
-            this.curFrame = this.frames.length - 2;
-            this.curQuote = this.getCurFrame().quotes[-1];
-
-            return {frame : this.getCurFrame(), quote : this.getCurQuote()};
-        }
-
-        return false;
-    },
-
-    renderFrame : function(frame) {
+    renderFrame : async function(frame) {
         this.curQuote = 0;
         this.quotes = frame.quotes.length - 1;
+
+        if (frame.audio && new Audio('sound/' + frame.audio).src != this.audio.src) {
+            this.audio.smoothPause();
+            sleep(100);
+            this.audio = new Audio('sound/' + frame.audio);
+            this.audio.setAttribute('loop', '');
+            this.audio.smoothPlay();
+        }
+        
         this.changeBackground(frame.background);
         this.changeChar(frame.character);
         this.renderPhrase(this.getCurQuote());
@@ -131,6 +127,35 @@ window.addEventListener('resize', () => {
     app.dialog.style.height = `calc(${app.char.height}px / 3)`;
 });
 
+document.querySelector('#start').addEventListener('click', function() {
+    this.parentNode.parentNode.parentNode.style.display = 'none';
+    app.start();
+});
+
 app.arrowNext.addEventListener('click', () => app.next());
 
 app.arrowPrev.addEventListener('click', () => app.previous());
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+Audio.prototype.smoothPause = async function() {
+    for (let i = 0; i < 97; i++) {
+        await sleep(21);
+        this.volume -= 0.01;
+    }
+    this.muted = true;
+    this.pause();
+}
+
+Audio.prototype.smoothPlay = async function() {
+    this.muted = false;
+    this.volume = 0.01;
+    this.play();
+    await sleep(700);
+    for (let i = 0; i < 98; i++) {
+        await sleep(31);
+        this.volume += 0.01;
+    }
+}
